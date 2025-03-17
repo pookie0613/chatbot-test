@@ -31,7 +31,7 @@ async def chatbot_response(message: ChatMessage):
         
         bot_message = response.choices[0].message.content
         
-        return {"output": bot_message}
+        return {"bot_message": bot_message}
         
     except openai.OpenAIError as e:
         raise HTTPException(status_code=500, detail=str(e))
