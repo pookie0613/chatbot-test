@@ -10,7 +10,19 @@ const api = axios.create({
   },
 });
 
+export const getConversations = async (search?: string): Promise<any> => {
+  const response = await api.get<any>('/conversations', {
+    params: search ? { search } : {},
+  });
+  return response.data;
+};
+
+export const getMessagesByConversationId = async (id: number): Promise<any> => {
+  const response = await api.post<any>('/message', request);
+  return response.data;
+};
+
 export const sendChatMessage = async (request: ChatRequest): Promise<any> => {
-  const response = await api.post<any>('/chat', request);
+  const response = await api.post<any>('/message', request);
   return response.data;
 };

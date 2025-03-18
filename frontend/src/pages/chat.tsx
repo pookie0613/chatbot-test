@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { sendChatMessage } from '../apis';
+import { sendChatMessage, getConversations } from '../apis';
 import { ChatMessage } from '../components/chat-message.tsx';
 import { ChatInput } from '../components/chat-input.tsx';
 import { Message } from '../types';
@@ -7,6 +7,8 @@ import { Loader } from '../components/loader';
 import { Sidebar } from '../components/sidebar';
 
 export const Chat: React.FC = () => {
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +51,15 @@ export const Chat: React.FC = () => {
     }
   };
 
+  const fetchConversations = async (searchString: string) => {
+    try {
+      const data = await getConversations(searchString);
+      setConversations(data);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  };
+
   const handleChatSelect = (id: number) => {
     console.log('Selected chat ID:', id);
   };
@@ -61,10 +72,14 @@ export const Chat: React.FC = () => {
     setIsCollapsed((prev) => !prev);
   };
 
+  useEffect(() => {
+    fetchConversations(search);
+  }, [search]);
+
   return (
     <div className="flex h-full">
       <Sidebar
-        recentChats={[]}
+        conversations={conversations}
         isCollapsed={isCollapsed}
         onChatSelect={handleChatSelect}
         onChatDelete={handleChatDelete}

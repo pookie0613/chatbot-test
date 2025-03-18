@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import ChatHistoryItem from './chat-history-item.tsx';
 
-interface RecentChat {
+interface Conversation {
   id: number;
   title: string;
-  timestamp: string;
+  created_at: string;
 }
 
 interface SidebarProps {
-  recentChats: RecentChat[];
+  conversations: Conversation[];
   onChatSelect: (id: number) => void;
   onChatDelete: (id: number) => void;
   isCollapsed: boolean;
@@ -17,7 +17,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  recentChats,
+  conversations,
   onChatSelect,
   onChatDelete,
   isCollapsed,
@@ -27,7 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div
-      className={`relative w-64 border-r border-gray-200 transition-width duration-300 py-4 ${
+      className={`relative border-r border-gray-200 transition-width duration-300 py-4 ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="px-4">
             <div className="flex items-center">
               <Icon icon="tabler:message-circle" width="24" height="24" />
-              <h2 className="text-lg font-bold ml-3">Recent Chats</h2>
+              <h2 className="text-lg font-bold ml-3">Chat History</h2>
             </div>
             <button className="bg-purple-600 text-white w-full py-2 px-4 rounded mt-2">
               New Chat +
@@ -65,16 +65,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
               <input
                 type="text"
-                placeholder="Search queries..."
-                className="w-full border rounded-md pl-10 pr-4 py-2" // Add padding for icon
+                placeholder="Search..."
+                className="w-full border rounded-md pl-10 pr-4 py-2"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
 
-          <h3 className="mt-4 font-semibold px-4">Today</h3>
-          {recentChats.map((chat) => (
+          {conversations.map((chat) => (
             <ChatHistoryItem
               key={chat.id}
               chat={chat}
@@ -82,7 +81,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onChatDelete={onChatDelete}
             />
           ))}
-          <h3 className="mt-4 font-semibold">Last 7 Days</h3>
         </>
       ) : (
         <div className="px-4">
