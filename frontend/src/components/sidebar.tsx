@@ -10,6 +10,7 @@ interface Conversation {
 
 interface SidebarProps {
   conversations: Conversation[];
+  selectConversationId?: number;
   onChatSelect: (id: number) => void;
   onChatDelete: (id: number) => void;
   isCollapsed: boolean;
@@ -18,9 +19,10 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({
   conversations,
+  selectConversationId,
+  isCollapsed,
   onChatSelect,
   onChatDelete,
-  isCollapsed,
   onToggleCollapse,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,6 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {conversations.map((chat) => (
             <ChatHistoryItem
               key={chat.id}
+              isActive={chat.id === selectConversationId}
               chat={chat}
               onChatSelect={onChatSelect}
               onChatDelete={onChatDelete}

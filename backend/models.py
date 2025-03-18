@@ -2,13 +2,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Foreign
 from sqlalchemy.orm import relationship
 from db import Base
 
-class ChatMessage(Base):
-    __tablename__ = "chat_messages"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_message = Column(String, nullable=False)
-    bot_message = Column(String, nullable=False)
-
 class Conversation(Base):
     __tablename__ = "conversations"
 

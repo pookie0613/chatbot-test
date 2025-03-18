@@ -1,5 +1,6 @@
 export interface ChatRequest {
   user_message: string;
+  conversation_id?: number;
   max_tokens?: number;
   temperature?: number;
 }
@@ -10,6 +11,9 @@ export interface ResultItem {
 }
 
 export interface Message {
-  text: string;
-  sender: 'user' | 'bot';
+  id?: number;
+  conversation_id?: number;
+  content: string;
+  liked?: boolean;
+  role: 'user' | 'assistant';
 }

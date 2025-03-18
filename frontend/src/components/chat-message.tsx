@@ -27,13 +27,13 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   return (
     <div
       className={`mb-4 text-lg p-3 rounded-lg ${
-        message.sender === 'user'
+        message.role === 'user'
           ? 'text-right bg-blue-200 ml-5'
           : 'text-left border border-grey mr-5'
       }`}
     >
-      {message.text}
-      {message.sender !== 'user' && (
+      {message.content}
+      {message.role !== 'user' && (
         <div className="flex justify-between border-t-2 border-grey mt-2 pt-2 text-xs text-gray-500">
           Was this response helpful?
           <div className="flex items-center justify-center gap-2">

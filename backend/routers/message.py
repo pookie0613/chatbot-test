@@ -83,14 +83,3 @@ async def chatbot_response(message: MessageRequest, db: Session = Depends(get_db
     # except Exception as e:
     #     db.rollback()
     #     raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-
-
-@router.get("/conversations/{conversation_id}/messages")
-async def get_conversation_messages(conversation_id: int, db: Session = Depends(get_db)):
-    try:
-        messages = db.query(Message).filter(Message.conversation_id == conversation_id).order_by(Message.created_at).all()
-        if not messages:
-            raise HTTPException(status_code=404, detail="No messages found for this conversation")
-        return messages
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

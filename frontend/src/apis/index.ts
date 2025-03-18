@@ -18,11 +18,16 @@ export const getConversations = async (search?: string): Promise<any> => {
 };
 
 export const getMessagesByConversationId = async (id: number): Promise<any> => {
-  const response = await api.post<any>('/message', request);
+  const response = await api.get<any>(`/conversations/${id}/messages`);
   return response.data;
 };
 
 export const sendChatMessage = async (request: ChatRequest): Promise<any> => {
   const response = await api.post<any>('/message', request);
+  return response.data;
+};
+
+export const deleteConversation = async (id: number): Promise<any> => {
+  const response = await api.delete<any>(`/conversations/${id}`);
   return response.data;
 };

@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { sendChatMessage, getConversations } from '../apis';
+import {
+  sendChatMessage,
+  getConversations,
+  getMessagesByConversationId,
+  deleteConversation,
+} from '../apis';
 import { ChatMessage } from '../components/chat-message.tsx';
 import { ChatInput } from '../components/chat-input.tsx';
 import { Message } from '../types';
@@ -8,6 +13,7 @@ import { Sidebar } from '../components/sidebar';
 
 export const Chat: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
+  const [selectConversationId, setSelectConversationId] = useState<number>();
   const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -24,7 +30,7 @@ export const Chat: React.FC = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage: Message = { text: input, sender: 'user' };
+    const userMessage: Message = { content: input, role: 'user' };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -32,18 +38,23 @@ export const Chat: React.FC = () => {
     try {
       const response = await sendChatMessage({
         user_message: input.trim(),
+        conversation_id: selectConversationId,
       });
 
+      if (!selectConversationId) {
+        setSelectConversationId(response.conversation_id);
+      }
+
       const botMessage: Message = {
-        text: response.bot_message,
-        sender: 'bot',
+        content: response.bot_message,
+        role: 'assistant',
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
-        text: 'Sorry, there was an error processing your request.',
-        sender: 'bot',
+        content: 'Sorry, there was an error processing your request.',
+        role: 'assistant',
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -51,7 +62,7 @@ export const Chat: React.FC = () => {
     }
   };
 
-  const fetchConversations = async (searchString: string) => {
+  const fetchConversations = async (searchString?: string) => {
     try {
       const data = await getConversations(searchString);
       setConversations(data);
@@ -60,12 +71,27 @@ export const Chat: React.FC = () => {
     }
   };
 
-  const handleChatSelect = (id: number) => {
-    console.log('Selected chat ID:', id);
+  const handleChatSelect = async (id: number) => {
+    try {
+      const data = await getMessagesByConversationId(id);
+      setSelectConversationId(id);
+      setMessages(data);
+    } catch (error) {
+      console.error('Error get messages:', error);
+    }
   };
 
-  const handleChatDelete = (id: number) => {
-    console.log('Deleted chat ID:', id);
+  const handleChatDelete = async (id: number) => {
+    try {
+      await deleteConversation(id);
+      if (selectConversationId === id) {
+        setMessages([]);
+        setSelectConversationId(undefined);
+      }
+      await fetchConversations();
+    } catch (error) {
+      console.error('Error get messages:', error);
+    }
   };
 
   const toggleSidebar = () => {
@@ -80,6 +106,7 @@ export const Chat: React.FC = () => {
     <div className="flex h-full">
       <Sidebar
         conversations={conversations}
+        selectConversationId={selectConversationId}
         isCollapsed={isCollapsed}
         onChatSelect={handleChatSelect}
         onChatDelete={handleChatDelete}
