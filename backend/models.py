@@ -11,7 +11,6 @@ class Conversation(Base):
     updated_at = Column(DateTime, server_default=text('now()'), nullable=False)
     messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
 
-
 class Message(Base):
     __tablename__ = "messages"
 
@@ -19,7 +18,7 @@ class Message(Base):
     conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="CASCADE"), index=True)
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
-    liked = Column(Boolean, server_default='false', nullable=False)
+    liked = Column(Boolean, nullable=True)
     created_at = Column(DateTime, server_default=text('now()'), nullable=False)
     updated_at = Column(DateTime, server_default=text('now()'), nullable=False)
     conversation = relationship("Conversation", back_populates="messages")

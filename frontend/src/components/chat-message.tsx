@@ -4,23 +4,25 @@ import { Icon } from '@iconify/react';
 
 interface ChatMessageProps {
   message: Message;
+  handleMessageVote: (id: number, liked?: boolean) => void;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
-  const [thumbUpActive, setThumbUpActive] = useState(false);
-  const [thumbDownActive, setThumbDownActive] = useState(false);
-
+export const ChatMessage: React.FC<ChatMessageProps> = ({
+  message,
+  handleMessageVote,
+}) => {
   const handleThumbUpClick = () => {
-    setThumbUpActive((prev) => !prev);
-    if (thumbDownActive) {
-      setThumbDownActive(false);
+    if (message.id) {
+      handleMessageVote(message.id, message.liked ? undefined : true);
     }
   };
 
   const handleThumbDownClick = () => {
-    setThumbDownActive((prev) => !prev);
-    if (thumbUpActive) {
-      setThumbUpActive(false);
+    if (message.id) {
+      handleMessageVote(
+        message.id,
+        message.liked === false ? undefined : false
+      );
     }
   };
 
@@ -39,10 +41,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           <div className="flex items-center justify-center gap-2">
             <Icon
               className={`cursor-pointer ${
-                thumbUpActive ? 'text-yellow-500' : ''
+                message.liked ? 'text-yellow-500' : ''
               }`}
               icon={
-                thumbUpActive
+                message.liked
                   ? 'material-symbols:thumb-up'
                   : 'material-symbols:thumb-up-outline'
               }
@@ -52,10 +54,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             />
             <Icon
               className={`cursor-pointer ${
-                thumbDownActive ? 'text-yellow-500' : ''
+                message.liked === false ? 'text-yellow-500' : ''
               }`}
               icon={
-                thumbDownActive
+                message.liked === false
                   ? 'material-symbols:thumb-down'
                   : 'material-symbols:thumb-down-outline'
               }
@@ -66,7 +68,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           </div>
         </div>
       )}
-      <div></div>
     </div>
   );
 };

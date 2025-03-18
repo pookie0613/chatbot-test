@@ -27,6 +27,16 @@ export const sendChatMessage = async (request: ChatRequest): Promise<any> => {
   return response.data;
 };
 
+export const changeMessageVote = async (
+  messageId: number,
+  liked?: boolean
+): Promise<any> => {
+  const response = await api.put<any>(`/messages/${messageId}/like`, null, {
+    params: { liked },
+  });
+  return response.data;
+};
+
 export const deleteConversation = async (id: number): Promise<any> => {
   const response = await api.delete<any>(`/conversations/${id}`);
   return response.data;

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Icon } from '@iconify/react';
 import ChatHistoryItem from './chat-history-item.tsx';
+import SearchInput from './search-input.tsx';
 
 interface Conversation {
   id: number;
@@ -11,22 +12,26 @@ interface Conversation {
 interface SidebarProps {
   conversations: Conversation[];
   selectConversationId?: number;
+  isCollapsed: boolean;
+  search: string;
   onChatSelect: (id: number) => void;
   onChatDelete: (id: number) => void;
-  isCollapsed: boolean;
+  onSetSearch: (search: string) => void;
   onToggleCollapse: () => void;
+  initializeChat: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   conversations,
   selectConversationId,
   isCollapsed,
+  search,
+  initializeChat,
+  onSetSearch,
   onChatSelect,
   onChatDelete,
   onToggleCollapse,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
   return (
     <div
       className={`relative border-r border-gray-200 transition-width duration-300 py-4 ${
@@ -54,41 +59,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Icon icon="tabler:message-circle" width="24" height="24" />
               <h2 className="text-lg font-bold ml-3">Chat History</h2>
             </div>
-            <button className="bg-purple-600 text-white w-full py-2 px-4 rounded mt-2">
+            <button
+              className="bg-purple-600 text-white w-full py-2 px-4 rounded mt-2"
+              onClick={initializeChat}
+            >
               New Chat +
             </button>
 
-            <div className="relative my-4">
-              <Icon
-                icon="mdi:magnify"
-                className="absolute left-3 top-2.5 text-gray-500"
-                width="20"
-                height="20"
-              />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full border rounded-md pl-10 pr-4 py-2"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            <SearchInput value={search} onChange={onSetSearch} />
           </div>
 
-          {conversations.map((chat) => (
-            <ChatHistoryItem
-              key={chat.id}
-              isActive={chat.id === selectConversationId}
-              chat={chat}
-              onChatSelect={onChatSelect}
-              onChatDelete={onChatDelete}
-            />
-          ))}
+          <div className="overflow-y-auto max-h-[calc(100vh-300px)] mt-2">
+            {conversations.map((chat) => (
+              <ChatHistoryItem
+                key={chat.id}
+                isActive={chat.id === selectConversationId}
+                chat={chat}
+                onChatSelect={onChatSelect}
+                onChatDelete={onChatDelete}
+              />
+            ))}
+          </div>
         </>
       ) : (
         <div className="px-4">
           <Icon icon="tabler:message-circle" width="24" height="24" />
-          <button className="bg-purple-600 text-white py-2 text-lg px-4 rounded mt-2">
+          <button
+            className="bg-purple-600 text-white py-2 text-lg px-4 rounded mt-2"
+            onClick={initializeChat}
+          >
             +
           </button>
         </div>

@@ -16,6 +16,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,6 +42,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     console.log('Selected:', option);
     setDropdownOpen(false);
   };
+
+  useEffect(() => {
+    if (!isLoading) inputRef.current?.focus();
+  }, [isLoading]);
 
   return (
     <div className="p-4 lg:p-8 border-t-2 bg-white">
@@ -72,27 +77,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   >
                     Google Drive
                   </button>
-                  <button
-                    onClick={() => handleOptionClick('SharePoint')}
-                    className="w-full text-left px-4 py-2 cursor-pointer hover:bg-gray-200"
-                  >
-                    SharePoint
-                  </button>
                 </div>
               )}
             </div>
-            <Icon
-              className="text-gray-500 cursor-pointer"
-              icon="icon-park-outline:voice"
-              width="24"
-              height="24"
-            />
           </div>
           <form
             onSubmit={onSubmit}
             className="flex flex-1 items-center relative"
           >
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => onInputChange(e.target.value)}

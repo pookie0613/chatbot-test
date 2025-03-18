@@ -4,6 +4,7 @@ import {
   getConversations,
   getMessagesByConversationId,
   deleteConversation,
+  changeMessageVote,
 } from '../apis';
 import { ChatMessage } from '../components/chat-message.tsx';
 import { ChatInput } from '../components/chat-input.tsx';
@@ -26,6 +27,15 @@ export const Chat: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const fetchConversations = async (searchString?: string) => {
+    try {
+      const data = await getConversations(searchString);
+      setConversations(data);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -43,6 +53,7 @@ export const Chat: React.FC = () => {
 
       if (!selectConversationId) {
         setSelectConversationId(response.conversation_id);
+        await fetchConversations();
       }
 
       const botMessage: Message = {
@@ -59,15 +70,6 @@ export const Chat: React.FC = () => {
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const fetchConversations = async (searchString?: string) => {
-    try {
-      const data = await getConversations(searchString);
-      setConversations(data);
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
     }
   };
 
@@ -94,6 +96,22 @@ export const Chat: React.FC = () => {
     }
   };
 
+  const handleMessageVote = async (id: number, liked?: boolean) => {
+    try {
+      await changeMessageVote(id, liked);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => (msg.id === id ? { ...msg, liked } : msg))
+      );
+    } catch (error) {
+      console.error('Error get messages:', error);
+    }
+  };
+
+  const initializeChat = async () => {
+    setMessages([]);
+    setSelectConversationId(undefined);
+  };
+
   const toggleSidebar = () => {
     setIsCollapsed((prev) => !prev);
   };
@@ -108,6 +126,9 @@ export const Chat: React.FC = () => {
         conversations={conversations}
         selectConversationId={selectConversationId}
         isCollapsed={isCollapsed}
+        search={search}
+        onSetSearch={setSearch}
+        initializeChat={initializeChat}
         onChatSelect={handleChatSelect}
         onChatDelete={handleChatDelete}
         onToggleCollapse={toggleSidebar}
@@ -119,7 +140,11 @@ export const Chat: React.FC = () => {
 
         <div className="container mx-auto flex-1 overflow-y-auto py-4 px-4">
           {messages.map((message, index) => (
-            <ChatMessage key={index} message={message} />
+            <ChatMessage
+              key={index}
+              message={message}
+              handleMessageVote={handleMessageVote}
+            />
           ))}
           <div ref={messagesEndRef} />
         </div>
