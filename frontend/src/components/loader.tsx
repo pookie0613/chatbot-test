@@ -9,7 +9,7 @@ export const Loader: React.FC = () => {
           icon="quill:loading-spin"
           className="w-12 h-12 animate-spin text-dark-red mb-3"
         />
-        <p className="text-lg">Antwort wird generiert...</p>
+        <p className="text-lg">Loading...</p>
       </div>
     </div>
   );

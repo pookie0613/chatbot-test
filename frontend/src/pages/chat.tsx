@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { sendChatMessage } from '../apis';
-import { ChatMessage } from '../components/chat-message';
-import { ChatInput } from '../components/chat-input';
+import { ChatMessage } from '../components/chat-message.tsx';
+import { ChatInput } from '../components/chat-input.tsx';
 import { Message } from '../types';
 import { Loader } from '../components/loader';
+import { Sidebar } from '../components/sidebar';
 
 export const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +33,7 @@ export const Chat: React.FC = () => {
       });
 
       const botMessage: Message = {
-        text: response.output,
+        text: response.bot_message,
         sender: 'bot',
       };
       setMessages((prev) => [...prev, botMessage]);
@@ -47,27 +49,48 @@ export const Chat: React.FC = () => {
     }
   };
 
+  const handleChatSelect = (id: number) => {
+    console.log('Selected chat ID:', id);
+  };
+
+  const handleChatDelete = (id: number) => {
+    console.log('Deleted chat ID:', id);
+  };
+
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => !prev);
+  };
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="text-4xl font-bold py-6 text-center border-b-2 border-gray-200">
-        Chat bot
-      </div>
-
-      <div className="container mx-auto flex-1 overflow-y-auto py-4 lg:py-8 px-4">
-        {messages.map((message, index) => (
-          <ChatMessage key={index} message={message} />
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <ChatInput
-        input={input}
-        isLoading={isLoading}
-        onInputChange={setInput}
-        onSubmit={handleSubmit}
+    <div className="flex h-full">
+      <Sidebar
+        recentChats={[]}
+        isCollapsed={isCollapsed}
+        onChatSelect={handleChatSelect}
+        onChatDelete={handleChatDelete}
+        onToggleCollapse={toggleSidebar}
       />
+      <div className="flex flex-col flex-1">
+        <div className="text-4xl font-bold py-6 text-center border-b-2 border-gray-200">
+          Chat bot
+        </div>
 
-      {isLoading && <Loader />}
+        <div className="container mx-auto flex-1 overflow-y-auto py-4 px-4">
+          {messages.map((message, index) => (
+            <ChatMessage key={index} message={message} />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <ChatInput
+          input={input}
+          isLoading={isLoading}
+          onInputChange={setInput}
+          onSubmit={handleSubmit}
+        />
+
+        {isLoading && <Loader />}
+      </div>
     </div>
   );
 };
