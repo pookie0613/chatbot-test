@@ -7,11 +7,22 @@ from db import get_db
 from models import Message, Conversation
 import openai
 import os
+import random
 from sqlalchemy import or_
 
 load_dotenv()
 
 router = APIRouter()
+
+STATIC_RESPONSES = [
+    "Sure, I can help with that!",
+    "That sounds interesting!",
+    "Tell me more!",
+    "I'm here to assist you.",
+    "Let's solve this together!",
+    "I appreciate your input.",
+    "That's a great question!"
+]
 
 class MessageRequest(BaseModel):
     user_message: str
@@ -35,7 +46,7 @@ async def update_message_like(message_id: int, liked: bool, db: Session = Depend
 
 @router.post("/message")  
 async def chatbot_response(message: MessageRequest, db: Session = Depends(get_db)):
-    # try:
+    try:
         # # Load OpenAI API key
         # openai.api_key = os.getenv("OPENAI_API_KEY")
         # if not openai.api_key:
@@ -49,7 +60,7 @@ async def chatbot_response(message: MessageRequest, db: Session = Depends(get_db
         #     temperature=message.temperature
         # )
         
-        bot_message = "Ok"
+        bot_message = random.choice(STATIC_RESPONSES)
 
         # Create conversation if not provided
         conversation_id = message.conversation_id
@@ -77,9 +88,9 @@ async def chatbot_response(message: MessageRequest, db: Session = Depends(get_db
 
         return {"bot_message": bot_message, "conversation_id": conversation_id}
         
-    # except openai.OpenAIError as e:
-    #     raise HTTPException(status_code=500, detail=str(e))
+    except openai.OpenAIError as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    # except Exception as e:
-    #     db.rollback()
-    #     raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
