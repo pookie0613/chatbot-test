@@ -41,3 +41,16 @@ async def get_conversations(search: Optional[str] = None, db: Session = Depends(
         return query.all()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.delete("/conversations/{conversation_id}")
+async def delete_conversation(conversation_id: int, db: Session = Depends(get_db)):
+    try:
+        conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        db.delete(conversation)
+        db.commit()
+        return {"message": "Conversation deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
