@@ -33,7 +33,7 @@ export const Chat: React.FC = () => {
       });
 
       const botMessage: Message = {
-        text: response.output,
+        text: response.bot_message,
         sender: 'bot',
       };
       setMessages((prev) => [...prev, botMessage]);
