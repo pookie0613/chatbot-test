@@ -1,22 +1,65 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from '@iconify/react';
+import { FilePreview } from './file-preview';
 
 interface ChatInputProps {
   input: string;
   isLoading: boolean;
+  selectedFiles: File[];
   onInputChange: (value: string) => void;
+  onFileChange: (files: File[]) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   input,
   isLoading,
+  selectedFiles,
   onInputChange,
+  onFileChange,
   onSubmit,
 }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const toggleDropdown = () => {
+    setDropdownOpen((prevState) => !prevState);
+  };
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+  };
+
+  const handleGoogleDriveUpload = () => {
+    console.log('Google Drive upload triggered!');
+  };
+
+  const handleOptionClick = (option: string) => {
+    if (option === 'Local Files') {
+      fileInputRef.current?.click();
+    } else if (option === 'Google Drive') {
+      handleGoogleDriveUpload();
+    }
+    setDropdownOpen(false);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const filesArray = Array.from(event.target.files);
+      onFileChange([...selectedFiles, ...filesArray]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    // setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+
+  useEffect(() => {
+    if (!isLoading) inputRef.current?.focus();
+  }, [isLoading]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,24 +77,25 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     };
   }, []);
 
-  const toggleDropdown = () => {
-    setDropdownOpen((prevState) => !prevState);
-  };
-
-  const handleOptionClick = (option: string) => {
-    console.log('Selected:', option);
-    setDropdownOpen(false);
-  };
-
-  useEffect(() => {
-    if (!isLoading) inputRef.current?.focus();
-  }, [isLoading]);
-
   return (
     <div className="p-4 lg:p-8 border-t-2 bg-white">
       <div className="container mx-auto">
+        <div className="mb-2">
+          {selectedFiles?.length > 0 && (
+            <div className="flex gap-2 items-center bg-white px-2 py-1 rounded-lg shadow-sm">
+              {selectedFiles.map((file, index) => (
+                <FilePreview
+                  key={index}
+                  file={file}
+                  onRemove={() => removeFile(index)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center gap-4">
-          <div className="flex gap-3 relative">
+          <div className="gsp-3 flex relative">
             <div>
               <Icon
                 className="text-gray-500 cursor-pointer"
@@ -83,7 +127,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </div>
           <form
             onSubmit={onSubmit}
-            className="flex flex-1 items-center relative"
+            className="flex items-center relative w-full"
           >
             <input
               ref={inputRef}
@@ -91,7 +135,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               value={input}
               onChange={(e) => onInputChange(e.target.value)}
               className="w-full text-lg py-4 pl-6 pr-20 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Input your message"
+              placeholder="Type your message"
               disabled={isLoading}
             />
             <button
@@ -104,6 +148,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </form>
         </div>
       </div>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+      />
     </div>
   );
 };

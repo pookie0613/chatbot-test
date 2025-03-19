@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from pydantic import BaseModel
@@ -14,6 +14,9 @@ load_dotenv()
 
 router = APIRouter()
 
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 STATIC_RESPONSES = [
     "Sure, I can help with that!",
     "That sounds interesting!",
@@ -24,15 +27,14 @@ STATIC_RESPONSES = [
     "That's a great question!"
 ]
 
-class MessageRequest(BaseModel):
-    user_message: str
-    conversation_id: Optional[int] = None
-    max_tokens: Optional[int] = 150
-    temperature: Optional[float] = 0.7
-
 @router.post("/message")  
-async def chatbot_response(message: MessageRequest, db: Session = Depends(get_db)):
-    try:
+async def chatbot_response(
+    user_message: str,
+    conversation_id: Optional[int] = Form(None),
+    files: List[UploadFile] = File(None),
+    db: Session = Depends(get_db),
+):
+    # try:
         # # Load OpenAI API key
         # openai.api_key = os.getenv("OPENAI_API_KEY")
         # if not openai.api_key:
@@ -56,6 +58,22 @@ async def chatbot_response(message: MessageRequest, db: Session = Depends(get_db
             db.commit()
             conversation_id = conversation.id
 
+        file_urls = []
+        if files:
+            for file in files:
+                file_path = os.path.join(UPLOAD_DIR, file.filename)
+                with open(file_path, "wb") as buffer:
+                    shutil.copyfileobj(file.file, buffer)
+                file_urls.append(file_path)
+
+                # Store file message in database
+                file_message_entry = Message(
+                    conversation_id=conversation_id,
+                    role="user",
+                    file_url=file_path
+                )
+                db.add(file_message_entry)
+
         # Store the messages
         user_message = Message(
             conversation_id=conversation_id,
@@ -74,12 +92,12 @@ async def chatbot_response(message: MessageRequest, db: Session = Depends(get_db
 
         return {"bot_message": bot_message, "conversation_id": conversation_id}
         
-    except openai.OpenAIError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # except openai.OpenAIError as e:
+    #     raise HTTPException(status_code=500, detail=str(e))
 
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    # except Exception as e:
+    #     db.rollback()
+    #     raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @router.put("/messages/{message_id}/like")
 async def update_message_like(message_id: int, liked: Optional[bool] = None, db: Session = Depends(get_db)):

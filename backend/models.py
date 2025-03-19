@@ -18,6 +18,7 @@ class Message(Base):
     conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="CASCADE"), index=True)
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
+    file_url = Column(Text, nullable=True)
     liked = Column(Boolean, nullable=True)
     created_at = Column(DateTime, server_default=text('now()'), nullable=False)
     updated_at = Column(DateTime, server_default=text('now()'), nullable=False)

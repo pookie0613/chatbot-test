@@ -6,8 +6,8 @@ import {
   deleteConversation,
   changeMessageVote,
 } from '../apis';
-import { ChatMessage } from '../components/chat-message.tsx';
-import { ChatInput } from '../components/chat-input.tsx';
+import { ChatMessage } from '../components/chat-message';
+import { ChatInput } from '../components/chat-input';
 import { Message } from '../types';
 import { Loader } from '../components/loader';
 import { Sidebar } from '../components/sidebar';
@@ -15,6 +15,7 @@ import { Sidebar } from '../components/sidebar';
 export const Chat: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [selectConversationId, setSelectConversationId] = useState<number>();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -46,10 +47,19 @@ export const Chat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await sendChatMessage({
-        user_message: input.trim(),
-        conversation_id: selectConversationId,
+      const formData = new FormData();
+      formData.append('user_message', input.trim());
+      formData.append(
+        'conversation_id',
+        selectConversationId?.toString() || ''
+      );
+
+      // Append files
+      selectedFiles.forEach((file) => {
+        formData.append('files', file);
       });
+
+      const response = await sendChatMessage(formData);
 
       if (!selectConversationId) {
         setSelectConversationId(response.conversation_id);
@@ -152,7 +162,9 @@ export const Chat: React.FC = () => {
         <ChatInput
           input={input}
           isLoading={isLoading}
+          selectedFiles={selectedFiles}
           onInputChange={setInput}
+          onFileChange={setSelectedFiles}
           onSubmit={handleSubmit}
         />
 

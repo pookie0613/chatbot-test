@@ -22,8 +22,8 @@ export const getMessagesByConversationId = async (id: number): Promise<any> => {
   return response.data;
 };
 
-export const sendChatMessage = async (request: ChatRequest): Promise<any> => {
-  const response = await api.post<any>('/message', request);
+export const sendChatMessage = async (formData: FormData) => {
+  const response = await api.post<any>('/message', formData);
   return response.data;
 };
 
