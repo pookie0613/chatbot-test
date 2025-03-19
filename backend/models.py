@@ -23,3 +23,13 @@ class Message(Base):
     created_at = Column(DateTime, server_default=text('now()'), nullable=False)
     updated_at = Column(DateTime, server_default=text('now()'), nullable=False)
     conversation = relationship("Conversation", back_populates="messages")
+
+    files = relationship("File", back_populates="message", cascade="all, delete-orphan")
+
+class File(Base):
+    __tablename__ = "files"
+
+    id = Column(Integer, primary_key=True, index=True)
+    message_id = Column(Integer, ForeignKey("messages.id", ondelete="CASCADE"), index=True)
+    file_url = Column(Text, nullable=False)
+    message = relationship("Message", back_populates="files")

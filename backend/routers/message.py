@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from pydantic import BaseModel
 from dotenv import load_dotenv
 from db import get_db
-from models import Message, Conversation
+from models import Message, Conversation, File as FileModel
 import openai
 import os
 import random
+import shutil
 from sqlalchemy import or_
 
 load_dotenv()
@@ -29,8 +29,8 @@ STATIC_RESPONSES = [
 
 @router.post("/message")  
 async def chatbot_response(
-    user_message: str,
-    conversation_id: Optional[int] = Form(None),
+    user_message: str = Form(...),
+    conversation_id: Optional[int | str] = Form(None),
     files: List[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
@@ -51,9 +51,8 @@ async def chatbot_response(
         bot_message = random.choice(STATIC_RESPONSES)
 
         # Create conversation if not provided
-        conversation_id = message.conversation_id
         if not conversation_id:
-            conversation = Conversation(title=message.user_message[:50])
+            conversation = Conversation(title=user_message[:50])
             db.add(conversation)
             db.commit()
             conversation_id = conversation.id
@@ -73,12 +72,20 @@ async def chatbot_response(
                     file_url=file_path
                 )
                 db.add(file_message_entry)
+                db.commit()
+
+                # Store file in files table
+                file_entry = FileModel(
+                    message_id=file_message_entry.id,
+                    file_url=file_path
+                )
+                db.add(file_entry)
 
         # Store the messages
         user_message = Message(
             conversation_id=conversation_id,
             role="user",
-            content=message.user_message
+            content=user_message
         )
         bot_message_entry = Message(
             conversation_id=conversation_id,
