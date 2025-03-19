@@ -31,6 +31,7 @@ STATIC_RESPONSES = [
 
 @router.post("/message")  
 async def chatbot_response(
+    user_message: str = Form(...),
     conversation_id: Optional[Union[int, str]] = Form(None),
     files: List[UploadFile] = File(None),
     db: Session = Depends(get_db),
