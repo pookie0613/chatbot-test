@@ -15,7 +15,7 @@ interface ChatButtonProps {
   onChatDelete: (id: number) => void;
 }
 
-const ChatHistoryItem: React.FC<ChatButtonProps> = ({
+export const ChatHistoryItem: React.FC<ChatButtonProps> = ({
   chat,
   isActive,
   onChatSelect,
@@ -98,5 +98,3 @@ const ChatHistoryItem: React.FC<ChatButtonProps> = ({
     </>
   );
 };
-
-export default ChatHistoryItem;

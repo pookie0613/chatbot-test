@@ -9,9 +9,9 @@ import {
 } from '../apis';
 import { ChatMessage } from '../components/chat-message';
 import { ChatInput } from '../components/chat-input';
-import { Message } from '../types';
 import { Loader } from '../components/loader';
 import { Sidebar } from '../components/sidebar';
+import { Message } from '../types';
 
 export const Chat: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);

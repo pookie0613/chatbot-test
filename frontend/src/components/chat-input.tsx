@@ -62,7 +62,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setDropdownOpen(false); // Close dropdown
+        setDropdownOpen(false);
       }
     };
 

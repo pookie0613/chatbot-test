@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon } from '@iconify/react';
-import ChatHistoryItem from './chat-history-item.tsx';
-import SearchInput from './search-input.tsx';
+import { ChatHistoryItem } from './chat-history-item';
+import { SearchInput } from './search-input';
 
 interface Conversation {
   id: number;
