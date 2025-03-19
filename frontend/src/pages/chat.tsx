@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Icon } from '@iconify/react';
 import {
   sendChatMessage,
   getConversations,
@@ -18,6 +19,7 @@ export const Chat: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [search, setSearch] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -41,9 +43,13 @@ export const Chat: React.FC = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage: Message = { content: input, role: 'user' };
-    setMessages((prev) => [...prev, userMessage]);
+    const userMessage: Message = {
+      content: input,
+      role: 'user',
+      files: selectedFiles,
+    };
     setInput('');
+    setSelectedFiles([]);
     setIsLoading(true);
 
     try {
@@ -55,11 +61,17 @@ export const Chat: React.FC = () => {
       );
 
       // Append files
-      selectedFiles.forEach((file) => {
+      userMessage?.files?.forEach((file) => {
         formData.append('files', file);
       });
 
       const response = await sendChatMessage(formData);
+
+      if (response.files) {
+        userMessage.files = response.files;
+      }
+
+      setMessages((prev) => [...prev, userMessage]);
 
       if (!selectConversationId) {
         setSelectConversationId(response.conversation_id);
@@ -71,13 +83,10 @@ export const Chat: React.FC = () => {
         role: 'assistant',
       };
       setMessages((prev) => [...prev, botMessage]);
+      setErrorMessage('');
     } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage: Message = {
-        content: 'Sorry, there was an error processing your request.',
-        role: 'assistant',
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, userMessage]);
+      setErrorMessage('Sorry, there was an error processing your request.');
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +122,7 @@ export const Chat: React.FC = () => {
         prevMessages.map((msg) => (msg.id === id ? { ...msg, liked } : msg))
       );
     } catch (error) {
-      console.error('Error get messages:', error);
+      console.error('Error vote:', error);
     }
   };
 
@@ -144,8 +153,16 @@ export const Chat: React.FC = () => {
         onToggleCollapse={toggleSidebar}
       />
       <div className="flex flex-col flex-1">
-        <div className="text-4xl font-bold py-6 text-center border-b-2 border-gray-200">
-          Chat bot
+        <div className="flex items-center text-4xl font-bold p-6 text-center border-b-2 border-gray-200">
+          <div className="flex items-center justify-center w-12 h-12 bg-purple-200 rounded-full mr-3">
+            <Icon
+              icon="ion:book-outline"
+              width="24"
+              height="24"
+              className="text-purple-600"
+            />
+          </div>
+          Knowledge Agent
         </div>
 
         <div className="container mx-auto flex-1 overflow-y-auto py-4 px-4">
@@ -157,6 +174,11 @@ export const Chat: React.FC = () => {
             />
           ))}
           <div ref={messagesEndRef} />
+          {errorMessage && (
+            <div className="text-lg p-3 rounded-lg text-red-500 text-left border border-gray-300 mr-5">
+              {errorMessage}
+            </div>
+          )}
         </div>
 
         <ChatInput

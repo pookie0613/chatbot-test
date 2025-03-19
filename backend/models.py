@@ -18,7 +18,6 @@ class Message(Base):
     conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="CASCADE"), index=True)
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
-    file_url = Column(Text, nullable=True)
     liked = Column(Boolean, nullable=True)
     created_at = Column(DateTime, server_default=text('now()'), nullable=False)
     updated_at = Column(DateTime, server_default=text('now()'), nullable=False)
@@ -32,4 +31,6 @@ class File(Base):
     id = Column(Integer, primary_key=True, index=True)
     message_id = Column(Integer, ForeignKey("messages.id", ondelete="CASCADE"), index=True)
     file_url = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+
     message = relationship("Message", back_populates="files")

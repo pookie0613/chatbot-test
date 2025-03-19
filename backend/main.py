@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from routers import message, conversation
 
 app = FastAPI()
@@ -16,6 +17,8 @@ app.add_middleware(
 # Include chat router
 app.include_router(message.router)
 app.include_router(conversation.router)
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.get("/")  
 def health_check():  

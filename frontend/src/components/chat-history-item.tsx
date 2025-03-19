@@ -38,11 +38,19 @@ const ChatHistoryItem: React.FC<ChatButtonProps> = ({
 
   return (
     <>
-      <button
+      <div
         className={`flex justify-between items-center py-2 hover:bg-gray-200 cursor-pointer w-full px-4 ${
           isActive ? 'bg-gray-300' : ''
         }`}
         onClick={() => onChatSelect(chat.id)}
+        role="button"
+        tabIndex={0}
+        onKeyPress={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            onChatSelect(chat.id);
+          }
+        }}
+        aria-pressed={isActive}
       >
         <div className="flex flex-col items-start">
           <span className="text-sm">{truncatedTitle}</span>
@@ -57,11 +65,11 @@ const ChatHistoryItem: React.FC<ChatButtonProps> = ({
         >
           <Icon icon="mi:delete" width="16" height="16" />
         </button>
-      </button>
+      </div>
 
       {/* Delete Confirmation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-[9999]">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
             <h3 className="text-lg font-semibold">Delete Chat</h3>
             <p className="text-sm text-gray-600 mt-2">

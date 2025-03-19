@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import Optional, List
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -36,9 +36,17 @@ async def get_conversations(search: Optional[str] = None, db: Session = Depends(
 @router.get("/conversations/{conversation_id}/messages")
 async def get_conversation_messages(conversation_id: int, db: Session = Depends(get_db)):
     try:
-        messages = db.query(Message).filter(Message.conversation_id == conversation_id).order_by(Message.created_at).all()
+        messages = (
+            db.query(Message)
+            .filter(Message.conversation_id == conversation_id)
+            .options(joinedload(Message.files))
+            .order_by(Message.created_at)
+            .all()
+        )
+
         if not messages:
             raise HTTPException(status_code=404, detail="No messages found for this conversation")
+
         return messages
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

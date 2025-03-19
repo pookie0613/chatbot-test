@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { ChatRequest } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -26,7 +25,7 @@ export const sendChatMessage = async (formData: FormData) => {
   const response = await api.post<any>('/message', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
-    }
+    },
   });
   return response.data;
 };

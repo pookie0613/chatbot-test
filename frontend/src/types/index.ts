@@ -15,5 +15,6 @@ export interface Message {
   conversation_id?: number;
   content: string;
   liked?: boolean;
+  files?: any[];
   role: 'user' | 'assistant';
 }

@@ -28,11 +28,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     setDropdownOpen((prevState) => !prevState);
   };
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-  };
-
   const handleGoogleDriveUpload = () => {
     console.log('Google Drive upload triggered!');
   };
@@ -54,7 +49,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   const removeFile = (index: number) => {
-    // setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    onFileChange(selectedFiles.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
