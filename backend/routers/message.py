@@ -100,13 +100,27 @@ async def chatbot_response(
 
 
 @router.put("/messages/{message_id}/like")
-async def update_message_like(message_id: int, liked: Optional[bool] = None, db: Session = Depends(get_db)):
+async def update_message_like(
+    message_id: int,
+    liked: Optional[bool] = None, 
+    rating: Optional[int] = None, 
+    comment: Optional[str] = None, 
+    db: Session = Depends(get_db)
+):
     try:
         message = db.query(Message).filter(Message.id == message_id).first()
         if not message:
             raise HTTPException(status_code=404, detail="Message not found")
 
         message.liked = liked
+
+        if liked is True:  
+            message.stars = rating
+            message.comment = comment 
+        else:  
+            message.stars = None 
+            message.comment = None 
+
         db.commit()
         return {"message": "Like status updated successfully"}
         

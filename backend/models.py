@@ -19,6 +19,8 @@ class Message(Base):
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     liked = Column(Boolean, nullable=True)
+    stars = Column(Integer, nullable=True)
+    comment = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=text('now()'), nullable=False)
     updated_at = Column(DateTime, server_default=text('now()'), nullable=False)
     conversation = relationship("Conversation", back_populates="messages")

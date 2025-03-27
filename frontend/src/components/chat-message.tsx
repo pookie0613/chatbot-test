@@ -1,20 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Message } from '../types';
 import { Icon } from '@iconify/react';
 import { FilePreview } from './file-preview';
+import { StarRating } from './star-rating';
 
 interface ChatMessageProps {
   message: Message;
-  handleMessageVote: (id: number, liked?: boolean) => void;
+  handleMessageVote: (id: number, liked?: boolean, rating?: number, comment?: string) => void;
 }
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   handleMessageVote,
 }) => {
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [error, setError] = useState('');
+
+  const handleStarClick = (rating: number) => {  
+    setUserRating(rating);
+  };
+
+  const handleChangeComment = (value: string) => {  
+    setComment(value);
+  };
+
   const handleThumbUpClick = () => {
-    if (message.id) {
-      handleMessageVote(message.id, message.liked ? undefined : true);
+    setIsRatingModalOpen(true);
+  };
+
+  const handleSubmit = () => {
+    if (message.id && userRating) {
+      handleMessageVote(message.id, true, userRating, comment);
+      setIsRatingModalOpen(false);
+    } else if (!userRating) {
+      setError('Please select at least one star');
     }
   };
 
@@ -81,6 +102,37 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             </div>
           </div>
         )}
+
+        {isRatingModalOpen && (  
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-[9999]">
+            <div className="flex flex-col bg-white p-8 rounded-lg">  
+              <h2 className="text-lg mb-2">Rating!</h2>  
+              <StarRating
+                rating={userRating}
+                comment={comment}
+                handleChangeComment={handleChangeComment}
+                starClick={handleStarClick}
+              />
+              {
+                error && <div className="text-red-500">{error}</div>
+              }
+              <div className="flex justify-between space-x-2 mt-4">
+                <button
+                  onClick={() => setIsRatingModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button  
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                  onClick={handleSubmit}
+                >  
+                  Submit  
+                </button>
+              </div>
+            </div>  
+          </div>  
+        )}  
       </div>
     </div>
   );

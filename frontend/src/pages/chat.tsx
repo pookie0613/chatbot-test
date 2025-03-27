@@ -115,9 +115,9 @@ export const Chat: React.FC = () => {
     }
   };
 
-  const handleMessageVote = async (id: number, liked?: boolean) => {
+  const handleMessageVote = async (id: number, liked?: boolean, rating?: number, comment?: string) => {
     try {
-      await changeMessageVote(id, liked);
+      await changeMessageVote(id, liked, rating, comment);
       setMessages((prevMessages) =>
         prevMessages.map((msg) => (msg.id === id ? { ...msg, liked } : msg))
       );

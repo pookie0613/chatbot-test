@@ -10,6 +10,7 @@ const api = axios.create({
 });
 
 export const getConversations = async (search?: string): Promise<any> => {
+  console.log(API_BASE_URL)
   const response = await api.get<any>('/conversations', {
     params: search ? { search } : {},
   });
@@ -32,10 +33,12 @@ export const sendChatMessage = async (formData: FormData) => {
 
 export const changeMessageVote = async (
   messageId: number,
-  liked?: boolean
+  liked?: boolean,
+  rating?: number,
+  comment?: string
 ): Promise<any> => {
   const response = await api.put<any>(`/messages/${messageId}/like`, null, {
-    params: { liked },
+    params: { liked, rating, comment },
   });
   return response.data;
 };
